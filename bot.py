@@ -8,6 +8,8 @@ import discord
 
 
 client = discord.Client()
+guild_id = 846678318928625684
+patryk_id = 654412645688016898
 
 message_count = 0
 
@@ -16,7 +18,7 @@ message_count = 0
 async def on_ready():
     global guild
 
-    guild = client.get_guild(846678318928625684)
+    guild = client.get_guild(guild_id)
 
 @client.event
 async def on_message(message):
@@ -31,9 +33,13 @@ async def on_message(message):
         await message.channel.send(get_funny_message())
 
 funny_messages = [
-    'mogę admina?',
+    'dajcie admina',
+    'mogę admina',
     'poproszę admina',
-    'nk doda boty',
+
+    'dodajcie boty',
+    'nk boty',
+    'gdzie są boty',
 ]
 def get_funny_message():
     from random import choice, randrange
@@ -51,6 +57,8 @@ def get_funny_message():
         msg = mutation_switch_letter()
     while randrange(25) == 0:
             msg = mutation_skip_char()
+    if randrange(3) == 0:
+        msg = mutation_mention_patryk(msg)
     return msg
 
 def mutation_capitalize(msg):
@@ -95,6 +103,9 @@ def mutation_skip_char(msg):
     msg = list(msg)
     msg.pop(idx)
     return ''.join(msg)
+
+def mutation_mention_patryk(msg):
+    return f'<@{patryk_id}> {msg}'
 
 
 if __name__ == '__main__':

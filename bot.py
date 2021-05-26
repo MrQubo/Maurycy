@@ -8,6 +8,10 @@ import discord
 
 
 client = discord.Client()
+allowed_guild_ids = [
+    # WWI 2021
+    846678318928625684,
+]
 guild_id = 846678318928625684
 patryk_id = 654412645688016898
 
@@ -15,15 +19,21 @@ message_count = 0
 
 
 @client.event
+async def on_ready():
+    for guild in client.guilds:
+        if guild.id not in allowed_guild_ids:
+            await guild.leave()
+
+@client.event
 async def on_guild_join(guild):
-    if guild.id != guild_id:
+    if guild.id not in allowed_guild_ids:
         await guild.leave()
 
 @client.event
 async def on_message(message):
     global message_count
 
-    if message.guild is None or message.guild.id != guild_id:
+    if message.guild is None or message.guild.id not in allowed_guild_ids:
         return
 
     if message.author == client.user:

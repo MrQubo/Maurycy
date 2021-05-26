@@ -15,14 +15,16 @@ message_count = 0
 
 
 @client.event
-async def on_ready():
-    global guild
-
-    guild = client.get_guild(guild_id)
+async def on_guild_join(guild):
+    if guild.id != guild_id:
+        await guild.leave()
 
 @client.event
 async def on_message(message):
     global message_count
+
+    if message.guild is None or message.guild.id != guild_id:
+        return
 
     if message.author == client.user:
         return

@@ -60,9 +60,9 @@ async def on_message(message):
         channel = message.channel
 
     message_count += 1
-    if message_count == 30:
-        await send_funny_message()
+    if message_count >= 30:
         message_count = 0
+        await send_funny_message()
 
 async def send_funny_message(channel):
     log.debug('Sending funny message...')

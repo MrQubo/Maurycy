@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import asyncio
+import logging
 import os
 import random
 import string
 
 import discord
+
+# logging
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger('bot')
 
 
 client = discord.Client()
@@ -30,8 +35,12 @@ async def on_ready():
     global general_channel
     general_channel = client.get_channel(general_channel_id)
 
+    log.info('Ready.')
+
 @client.event
 async def on_guild_join(guild):
+    log.debug('Joined new guild:', guild)
+
     if guild.id != guild_id:
         await guild.leave()
 
@@ -52,13 +61,21 @@ async def on_message(message):
 
     message_count += 1
     if message_count == 30:
-        typing_time = get_typing_time()
-        msg = get_funny_message()
-        # channel.typing() context manager is buggy
-        await channel.trigger_typing()
-        await asyncio.sleep(typing_time)
-        await channel.send(msg)
+        await send_funny_message()
         message_count = 0
+
+async def send_funny_message(channel):
+    log.debug('Sending funny message...')
+
+    typing_time = get_typing_time()
+    msg = get_funny_message()
+
+    # channel.typing() context manager is buggy
+    await channel.trigger_typing()
+    await asyncio.sleep(typing_time)
+    await channel.send(msg)
+
+    log.debug('Send funny message.')
 
 def get_typing_time():
     return min(random.expovariate(1/0.5) + 0.9, 4.0)
@@ -148,4 +165,5 @@ def mutation_mention_patryk(msg):
 
 
 if __name__ == '__main__':
+    log.info('Starting.')
     client.run(os.environ['DISCORD_TOKEN'])

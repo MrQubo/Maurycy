@@ -18,4 +18,5 @@ fi
 
 . discord.env
 . venv/bin/activate
+clear && { tmux clear-history || true; }
 exec python3 bot.py

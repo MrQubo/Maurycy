@@ -14,6 +14,7 @@ log = logging.getLogger('bot')
 
 
 client = discord.Client()
+
 guild_id = 846678318928625684
 patryk_id = 654412645688016898
 redirect_to_general_channel_ids = [
@@ -24,6 +25,8 @@ redirect_to_general_channel_ids = [
 general_channel_id = 846678318928625687
 
 message_count = 0
+
+typing_lock = asyncio.Lock()
 
 
 @client.event
@@ -62,7 +65,7 @@ async def on_message(message):
     message_count += 1
     if message_count >= 30:
         message_count = 0
-        await send_funny_message()
+        await send_funny_message(channel)
 
 async def send_funny_message(channel):
     log.debug('Sending funny message...')
@@ -71,9 +74,10 @@ async def send_funny_message(channel):
     msg = get_funny_message()
 
     # channel.typing() context manager is buggy
-    await channel.trigger_typing()
-    await asyncio.sleep(typing_time)
-    await channel.send(msg)
+    async with typing_lock:
+        await channel.trigger_typing()
+        await asyncio.sleep(typing_time)
+        await channel.send(msg)
 
     log.debug('Send funny message.')
 

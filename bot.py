@@ -15,7 +15,10 @@ log = logging.getLogger('bot')
 
 client = discord.Client()
 
-guild_id = 846678318928625684
+allowed_guild_ids = [
+    846678318928625684,  # WWI 2021
+    777974044698869780,  # test
+]
 patryk_id = 654412645688016898
 redirect_to_general_channel_ids = [
     # ustalenia-ważne
@@ -32,8 +35,7 @@ typing_lock = asyncio.Lock()
 @client.event
 async def on_ready():
     for guild in client.guilds:
-        if guild.id != guild_id:
-            await guild.leave()
+        await ensure_guild_allowed(guild)
 
     global general_channel
     general_channel = client.get_channel(general_channel_id)
@@ -44,14 +46,13 @@ async def on_ready():
 async def on_guild_join(guild):
     log.debug('Joined new guild:', guild)
 
-    if guild.id != guild_id:
-        await guild.leave()
+    await ensure_guild_allowed(guild)
 
 @client.event
 async def on_message(message):
     global message_count
 
-    if message.guild is None or message.guild.id != guild_id:
+    if not is_guild_allowed(message.guild):
         return
 
     if message.author == client.user:
@@ -67,19 +68,29 @@ async def on_message(message):
         message_count = 0
         await send_funny_message(channel)
 
+def is_guild_allowed(guild):
+    return guild is not None and guild.id in allowed_guild_ids
+
+async def ensure_guild_allowed(guild):
+    if not is_guild_allowed(guild):
+        await guild.leave()
+
 async def send_funny_message(channel):
     log.debug('Sending funny message...')
 
-    typing_time = get_typing_time()
     msg = get_funny_message()
+    await send_message(channel, msg)
+
+    log.debug('Send funny message.')
+
+async def send_message(channel, content):
+    typing_time = get_typing_time()
 
     # channel.typing() context manager is buggy
     async with typing_lock:
         await channel.trigger_typing()
         await asyncio.sleep(typing_time)
-        await channel.send(msg)
-
-    log.debug('Send funny message.')
+        await channel.send(content)
 
 def get_typing_time():
     return min(random.expovariate(1/0.5) + 0.9, 4.0)

@@ -160,8 +160,6 @@ funny_messages = [
 def get_funny_message_content():
     msg = random.choice(funny_messages)
     msg = mutate_sentence(msg)
-    if random_chance(1/3):
-        msg = mutation_mention_patryk(msg)
     return msg
 
 funny_resend_messages = [

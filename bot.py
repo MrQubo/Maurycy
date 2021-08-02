@@ -108,6 +108,7 @@ async def on_message_delete(message):
         channel = message.channel
 
     if private_message.was_resend_after_delete:
+        return
         content = message.content
         rere = 'Re-re'
     else:

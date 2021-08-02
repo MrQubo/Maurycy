@@ -78,7 +78,7 @@ async def on_message(message):
         channel = message.channel
 
     message_count += 1
-    if message_count >= 100:
+    if message_count >= 128:
         message_count = 0
 
         content = get_funny_message_content()
